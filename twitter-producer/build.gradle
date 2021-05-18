@@ -10,10 +10,13 @@ group 'com.kafkatweets'
 version '0.1'
 
 repositories {
-    maven {
-        url 'http://packages.confluent.io/maven/'
-    }
     mavenCentral()
+    maven {
+        url 'https://maven.repository.redhat.com/earlyaccess/all/'
+    }
+    maven {
+        url 'https://packages.confluent.io/maven/'
+    }
 }
 
 dependencies {
@@ -24,6 +27,7 @@ dependencies {
     compile 'com.twitter:hbc-core:2.2.0'
     compile 'org.apache.avro:avro:1.10.2'
     compile 'com.fasterxml.jackson.core:jackson-databind:2.12.3'
+    implementation group: 'io.confluent', name: 'kafka-avro-serializer', version: '5.3.0'
 }
 
 jar {
@@ -48,3 +52,4 @@ def generateAvro = tasks.register("generateAvro", GenerateAvroJavaTask) {
 tasks.named("compileJava").configure {
     source(generateAvro)
 }
+

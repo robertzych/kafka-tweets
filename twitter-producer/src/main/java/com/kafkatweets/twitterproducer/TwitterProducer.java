@@ -111,9 +111,8 @@ public class TwitterProducer {
         Properties properties = new Properties();
         properties.setProperty(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         properties.setProperty(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-        // TODO: use AvroSerializer for values
-        //props.put('value.serializer', 'io.confluent.kafka.serializers.KafkaAvroSerializer')
-        properties.setProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+        properties.setProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, KafkaAvroSerializer.class.getName());
+        // TODO: add schema registry to docker-compose.yml
         //props.put('schema.registry.url', schemaRegistryServer)
 
         // create the producer
