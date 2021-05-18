@@ -10,6 +10,9 @@ group 'com.kafkatweets'
 version '0.1'
 
 repositories {
+    maven {
+        url 'http://packages.confluent.io/maven/'
+    }
     mavenCentral()
 }
 
@@ -20,6 +23,7 @@ dependencies {
     compile 'com.google.collections:google-collections:1.0'
     compile 'com.twitter:hbc-core:2.2.0'
     compile 'org.apache.avro:avro:1.10.2'
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.12.3'
 }
 
 jar {
