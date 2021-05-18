@@ -1,0 +1,33 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+group 'com.kafkatweets'
+version '0.1'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    compile 'org.slf4j:slf4j-simple:1.7.30'
+    compile 'org.apache.kafka:kafka-clients:2.8.0'
+    compile 'com.google.collections:google-collections:1.0'
+    compile 'com.twitter:hbc-core:2.2.0'
+}
+
+jar {
+    manifest {
+        attributes "Main-Class": "com.kafkatweets.twitterproducer.TwitterProducer"
+    }
+
+    from {
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it)}
+    }
+}
+
+application {
+    mainClassName = 'com.kafkatweets.twitterproducer.TwitterProducer'
+}

@@ -1,0 +1,7 @@
+.gradle
+.idea
+credentials
+gradle
+twitter-producer/build
+gradlew
+gradlew.bat
