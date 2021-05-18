@@ -1,6 +1,9 @@
+import com.github.davidmc24.gradle.plugin.avro.GenerateAvroJavaTask
+
 plugins {
     id 'java'
     id 'application'
+    id "com.github.davidmc24.gradle.plugin.avro-base" version "1.2.0"
 }
 
 group 'com.kafkatweets'
@@ -16,6 +19,7 @@ dependencies {
     compile 'org.apache.kafka:kafka-clients:2.8.0'
     compile 'com.google.collections:google-collections:1.0'
     compile 'com.twitter:hbc-core:2.2.0'
+    compile 'org.apache.avro:avro:1.10.2'
 }
 
 jar {
@@ -30,4 +34,13 @@ jar {
 
 application {
     mainClassName = 'com.kafkatweets.twitterproducer.TwitterProducer'
+}
+
+def generateAvro = tasks.register("generateAvro", GenerateAvroJavaTask) {
+    source("src/main/avro")
+    outputDir = file("src/main/java")
+}
+
+tasks.named("compileJava").configure {
+    source(generateAvro)
 }

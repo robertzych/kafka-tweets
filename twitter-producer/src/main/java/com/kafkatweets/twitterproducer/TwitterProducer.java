@@ -72,6 +72,7 @@ public class TwitterProducer {
             }
             if (msg != null) {
                 logger.info(msg);
+                // TODO: convert the json message to avro before producing to kafka
                 producer.send(new ProducerRecord<>("twitter_tweets", null, msg), (metadata, exception) -> {
                     if (exception != null) {
                         logger.error("Something bad happened", exception);
