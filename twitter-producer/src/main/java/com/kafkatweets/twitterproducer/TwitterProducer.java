@@ -12,11 +12,11 @@ import com.twitter.hbc.core.endpoint.StatusesFilterEndpoint;
 import com.twitter.hbc.core.processor.StringDelimitedProcessor;
 import com.twitter.hbc.httpclient.auth.Authentication;
 import com.twitter.hbc.httpclient.auth.OAuth1;
+import io.confluent.kafka.serializers.KafkaAvroSerializer;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.StringSerializer;
-import io.confluent.kafka.serializers.KafkaAvroSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -155,12 +155,13 @@ public class TwitterProducer {
         Authentication hosebirdAuth = new OAuth1(consumerKey, consumerSecret, token, secret);
 
         ClientBuilder builder = new ClientBuilder()
-                .name("Hosebird-Client-01")                              // optional: mainly for the logs
+                .name("Hosebird-Client-02")                              // optional: mainly for the logs
                 .hosts(hosebirdHosts)
                 .authentication(hosebirdAuth)
                 .endpoint(hosebirdEndpoint)
                 .processor(new StringDelimitedProcessor(msgQueue));
 
-        return builder.build();
+        Client client = builder.build();
+        return client;
     }
 }
