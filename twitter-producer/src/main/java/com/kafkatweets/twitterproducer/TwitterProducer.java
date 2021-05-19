@@ -32,7 +32,7 @@ import java.util.concurrent.TimeUnit;
 
 public class TwitterProducer {
 
-    Logger logger = LoggerFactory.getLogger(TwitterProducer.class.getName());
+    static Logger logger = LoggerFactory.getLogger(TwitterProducer.class.getName());
 
     List<String> terms = Lists.newArrayList("kafka");
 
@@ -76,7 +76,7 @@ public class TwitterProducer {
             if (jsonTweet != null) {
                 logger.info(jsonTweet);
                 Tweet tweet = convertJsonTweet(jsonTweet);
-                producer.send(new ProducerRecord<>("twitter_tweets", null, tweet),
+                producer.send(new ProducerRecord<>("twitter_tweets_avro", null, tweet),
                         (metadata, exception) -> {
                             if (exception != null) {
                                 logger.error("Something bad happened", exception);
@@ -88,7 +88,7 @@ public class TwitterProducer {
 
     }
 
-    private Tweet convertJsonTweet(String jsonTweet) {
+    public static Tweet convertJsonTweet(String jsonTweet) {
         ObjectMapper objectMapper = new ObjectMapper();
         RawTweet rawTweet = null;
         try {
@@ -106,14 +106,14 @@ public class TwitterProducer {
 
     private KafkaProducer<String, Tweet> createKafkaProducer() {
         String bootstrapServers = "127.0.0.1:9092";
+        String schemaRegistryServer = "http://localhost:8081";
 
         // create Producer properties
         Properties properties = new Properties();
         properties.setProperty(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         properties.setProperty(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         properties.setProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, KafkaAvroSerializer.class.getName());
-        // TODO: add schema registry to docker-compose.yml
-        //props.put('schema.registry.url', schemaRegistryServer)
+        properties.setProperty("schema.registry.url", schemaRegistryServer);
 
         // create the producer
         return new KafkaProducer<>(properties);
