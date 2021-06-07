@@ -1,6 +1,17 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "com.commercehub.gradle.plugin:gradle-avro-plugin:0.22.0"
+        classpath "com.github.jengelman.gradle.plugins:shadow:4.0.2"
+    }
+}
+
 plugins {
     id 'java'
     id 'application'
+    id 'idea'
 }
 
 group 'com.kafkatweets'
@@ -8,7 +19,13 @@ version '0.1'
 
 repositories {
     mavenCentral()
+    maven {
+        url 'https://packages.confluent.io/maven/'
+    }
 }
+
+apply plugin: 'com.commercehub.gradle.plugin.avro'
+apply plugin: "com.github.johnrengelman.shadow"
 
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
@@ -16,6 +33,9 @@ dependencies {
     compile 'org.apache.kafka:kafka-clients:2.8.0'
     compile 'com.google.collections:google-collections:1.0'
     compile 'com.twitter:hbc-core:2.2.0'
+    compile 'org.apache.avro:avro:1.10.2'
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.12.3'
+    implementation 'io.confluent:kafka-streams-avro-serde:6.1.1'
 }
 
 jar {
@@ -28,6 +48,12 @@ jar {
     }
 }
 
+shadowJar {
+    archiveBaseName = "kstreams-stream-table-join-standalone"
+    archiveClassifier = ''
+}
+
 application {
     mainClassName = 'com.kafkatweets.twitterproducer.TwitterProducer'
 }
+

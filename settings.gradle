@@ -1,2 +1,8 @@
-include 'twitter-producer'
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        mavenCentral()
+    }
+}
 
+include 'twitter-producer'
