@@ -7,3 +7,4 @@ twitter-producer/build
 gradlew
 gradlew.bat
 credentials.properties
+connect_twitter.properties
