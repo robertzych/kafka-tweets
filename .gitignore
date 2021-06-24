@@ -6,3 +6,4 @@ gradle
 twitter-producer/build
 gradlew
 gradlew.bat
+credentials.properties
