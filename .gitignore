@@ -7,3 +7,4 @@ twitter-producer/build
 gradlew
 gradlew.bat
 connect_twitter.json
+connect_neo4j.json

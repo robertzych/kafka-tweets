@@ -1,0 +1,11 @@
+{
+  "name": "neo4j_sink",
+  "config": {
+    "connector.class": "streams.kafka.connect.sink.Neo4jSinkConnector",
+    "topics": "twitter_json_01",
+    "neo4j.server.uri": "bolt://neo4j:7687",
+    "neo4j.authentication.basic.username": "neo4j",
+    "neo4j.authentication.basic.password": "connect",
+    "neo4j.topic.cypher.twitter_json_01": "MERGE (u:User{ID: event.User.Id}) ON CREATE SET u.Name = event.User.Name, u.ScreenName = event.User.ScreenName SET u.Location = event.Location, u.FollowersCount = event.User.FollowersCount, u.StatusesCount = event.User.StatusesCount MERGE (t:Tweet{ID: event.Id}) ON CREATE SET t.Text = event.Text, t.retweet = event.Retweet MERGE (u)-[:TWEETED]->(t) WITH event.HashtagEntities AS hashTags, t, u, event UNWIND hashTags AS hashTag MERGE (h:Hashtag{text: hashTag.Text}) MERGE (t)-[:HAS_TAG]->(h) MERGE (u)-[:TAGGED]->(h) WITH event.UserMentionEntities AS userMentions, t, u UNWIND userMentions AS userMention MERGE (um:User{ID: userMention.Id}) ON CREATE SET um.Name = userMention.Name, um.ScreenName = userMention.ScreenName MERGE (t)-[:MENTIONS]->(um) MERGE (u)-[:MENTIONED]->(um)"
+  }
+}
