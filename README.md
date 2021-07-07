@@ -14,6 +14,8 @@
 
 [//]: # (TODO: figure out a way to retain twitter_json_01 even after `docker-compose down`)
 
+[//]: # (TODO: no data in neo4j)
+
 [//]: # (TODO: consider creating a Neo4j custom Docker image that contains both APOC and GDS so it doesn't need to download each time `docker-compose` is run)
 
 [//]: # (TODO: wait for Neo4j to spin-up before Connect attempts to send messages to it)
