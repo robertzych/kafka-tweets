@@ -35,8 +35,6 @@ services:
       CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1
       CONFLUENT_METRICS_ENABLE: 'true'
       CONFLUENT_SUPPORT_CUSTOMER_ID: 'anonymous'
-    volumes:
-      - "$PWD/data:/var/lib/kafka/data"
 
   kafka-connect:
     image: confluentinc/cp-kafka-connect:6.2.0
@@ -82,6 +80,8 @@ services:
         /etc/confluent/docker/run &
         #
         sleep infinity
+    volumes:
+      - "$PWD/data:/tmp/kafka_tweets"
 
   neo4j:
     image: neo4j:4.2.7-enterprise
