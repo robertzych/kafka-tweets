@@ -15,8 +15,6 @@
 `curl http://localhost:8083/connectors/neo4j_sink/status`
 `kafka-console-consumer --bootstrap-server 127.0.0.1:9092 --topic twitter_json_01 --from-beginning`
 
-[//]: # (TODO: figure out a way to retain twitter_json_01 even after `docker-compose down`)
-[//]: # (TODO: no data in neo4j)
 [//]: # (TODO: consider creating a Neo4j custom Docker image that contains both APOC and GDS so it doesn't need to download each time `docker-compose` is run)
 [//]: # (TODO: wait for Neo4j to spin-up before Connect attempts to send messages to it)
 [//]: # (TODO: consider removing `twitter-producer` and Gradle stuff because this is now being done by Connect)
