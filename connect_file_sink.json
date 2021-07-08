@@ -2,8 +2,8 @@
   "name": "file_sink",
   "config": {
     "connector.class": "FileStreamSink",
-    "key.converter": "org.apache.kafka.connect.json.JsonConverter",
-    "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "key.converter": "org.apache.kafka.connect.storage.StringConverter",
+    "value.converter": "org.apache.kafka.connect.storage.StringConverter",
     "value.converter.schemas.enable": false,
     "key.converter.schemas.enable": false,
     "topics": "twitter_json_01",
