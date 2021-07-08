@@ -6,7 +6,15 @@
 
 `curl -s -X POST -H 'Content-Type: application/json' --data @connect_twitter.json http://localhost:8083/connectors`
 
+`curl http://localhost:8083/connectors/twitter_source/status`
+
+`curl -X DELETE http://localhost:8083/connectors/twitter_source`
+
 `curl -s -X POST -H 'Content-Type: application/json' --data @connect_neo4j.json http://localhost:8083/connectors`
+
+`curl http://localhost:8083/connectors/neo4j_sink/status`
+
+`curl -X DELETE http://localhost:8083/connectors/neo4j_sink`
 
 `kafka-console-consumer --bootstrap-server 127.0.0.1:9092 --topic twitter_json_01 --from-beginning`
 

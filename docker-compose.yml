@@ -35,25 +35,14 @@ services:
       CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1
       CONFLUENT_METRICS_ENABLE: 'true'
       CONFLUENT_SUPPORT_CUSTOMER_ID: 'anonymous'
-
-  schema-registry:
-    image: confluentinc/cp-schema-registry:6.2.0
-    container_name: schema-registry
-    ports:
-      - 8081:8081
-    depends_on:
-      - zookeeper
-      - kafka
-    environment:
-      SCHEMA_REGISTRY_HOST_NAME: schema-registry
-      SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: zookeeper:2181
+    volumes:
+      - "$PWD/data:/var/lib/kafka/data"
 
   kafka-connect:
     image: confluentinc/cp-kafka-connect:6.2.0
     container_name: kafka-connect
     depends_on:
       - kafka
-      - schema-registry
     ports:
     - 8083:8083
     environment:
@@ -66,8 +55,7 @@ services:
       CONNECT_OFFSET_STORAGE_TOPIC: _kafka-connect-group-01-offsets
       CONNECT_STATUS_STORAGE_TOPIC: _kafka-connect-group-01-status
       CONNECT_KEY_CONVERTER: org.apache.kafka.connect.storage.StringConverter
-      CONNECT_VALUE_CONVERTER: io.confluent.connect.avro.AvroConverter
-      CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL: "http://schema-registry:8081"
+      CONNECT_VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
       CONNECT_INTERNAL_KEY_CONVERTER: 'org.apache.kafka.connect.json.JsonConverter'
       CONNECT_INTERNAL_VALUE_CONVERTER: 'org.apache.kafka.connect.json.JsonConverter'
       CONNECT_LOG4J_ROOT_LOGLEVEL: 'INFO'
