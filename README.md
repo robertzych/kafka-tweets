@@ -6,6 +6,7 @@
 `curl -s -X POST -H 'Content-Type: application/json' --data @connect_twitter.json http://localhost:8083/connectors`
 `curl http://localhost:8083/connectors/twitter_source/status`
 `kafkacat -b 127.0.0.1:9092 -t twitter_json_01 -C -e -q | wc -l`
+`kafka-console-consumer --bootstrap-server 127.0.0.1:9092 --topic twitter_json_01 --from-beginning`
 `curl -s -X POST -H 'Content-Type: application/json' --data @connect_file_sink.json http://localhost:8083/connectors`
 `curl http://localhost:8083/connectors/file_sink/status`
 `curl -s -X POST -H 'Content-Type: application/json' --data @connect_file_source.json http://localhost:8083/connectors`
@@ -13,7 +14,8 @@
 `kafkacat -b 127.0.0.1:9092 -t twitter_json_01 -C -e -q | wc -l`
 `curl -s -X POST -H 'Content-Type: application/json' --data @connect_neo4j.json http://localhost:8083/connectors`
 `curl http://localhost:8083/connectors/neo4j_sink/status`
-`kafka-console-consumer --bootstrap-server 127.0.0.1:9092 --topic twitter_json_01 --from-beginning`
+`MATCH (t:Tweet) RETURN count(t)`
+`CALL db.schema.visualization()`
 
 [//]: # (TODO: create a topic that doesn't include any franz kafka tweets)
 [//]: # (TODO: create a topic that only contains new users)
