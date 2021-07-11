@@ -2,16 +2,21 @@
 
 `docker-compose up -d`
 `kafka-topics --zookeeper 127.0.0.1 --create -topic twitter_json_01 --partitions 1 --replication-factor 1`
+`kafka-topics --zookeeper 127.0.0.1 --create -topic no_franz_kafka_tweets --partitions 1 --replication-factor 1`
+`curl -s -X POST -H 'Content-Type: application/json' --data @connect_file_source.json http://localhost:8083/connectors`
+`curl http://localhost:8083/connectors/file_source/status`
+`kafkacat -b 127.0.0.1:9092 -t twitter_json_01 -C -e -q | wc -l`
+`curl -X DELETE http://localhost:8083/connectors/file_source`
 `curl http://localhost:8083/connectors`
 `curl -s -X POST -H 'Content-Type: application/json' --data @connect_twitter.json http://localhost:8083/connectors`
 `curl http://localhost:8083/connectors/twitter_source/status`
 `kafkacat -b 127.0.0.1:9092 -t twitter_json_01 -C -e -q | wc -l`
 `kafka-console-consumer --bootstrap-server 127.0.0.1:9092 --topic twitter_json_01 --from-beginning`
+`kafka-console-consumer --bootstrap-server 127.0.0.1:9092 --topic no_franz_kafka_tweets --from-beginning`
 `curl -s -X POST -H 'Content-Type: application/json' --data @connect_file_sink.json http://localhost:8083/connectors`
 `curl http://localhost:8083/connectors/file_sink/status`
-`curl -s -X POST -H 'Content-Type: application/json' --data @connect_file_source.json http://localhost:8083/connectors`
-`curl http://localhost:8083/connectors/file_source/status`
-`kafkacat -b 127.0.0.1:9092 -t twitter_json_01 -C -e -q | wc -l`
+`wc -l data/kafka_tweets_01.txt`
+`tail -f data/kafka_tweets_01.txt | jq '.Text'`
 `curl -s -X POST -H 'Content-Type: application/json' --data @connect_neo4j.json http://localhost:8083/connectors`
 `curl http://localhost:8083/connectors/neo4j_sink/status`
 `MATCH (t:Tweet) RETURN count(t)`
