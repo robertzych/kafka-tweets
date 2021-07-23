@@ -6,3 +6,4 @@ pluginManagement {
 }
 
 include 'twitter-producer'
+include 'streams-classifier'
