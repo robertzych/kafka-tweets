@@ -12,6 +12,7 @@ services:
 
   kafka:
     image: confluentinc/cp-enterprise-kafka:6.2.0
+    stop_grace_period: 120s
     container_name: kafka
     depends_on:
       - zookeeper
