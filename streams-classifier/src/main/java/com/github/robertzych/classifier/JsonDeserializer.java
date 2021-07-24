@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.util.Map;
 
 @Slf4j
-public class JsonDeserializer<JsonNode> implements Deserializer<JsonNode> {
+public class JsonDeserializer implements Deserializer<JsonNode> {
 
     private static final ObjectMapper OBJECT_MAPPER =
             new ObjectMapper()
@@ -30,7 +30,7 @@ public class JsonDeserializer<JsonNode> implements Deserializer<JsonNode> {
     }
 
     @Override
-    public JsonNode deserialize(String topic, byte[] bytes) { // TODO: change from T to JsonNode
+    public JsonNode deserialize(String topic, byte[] bytes) {
         if (bytes == null)
             return null;
 

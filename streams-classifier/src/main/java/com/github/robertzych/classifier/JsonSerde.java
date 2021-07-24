@@ -19,11 +19,11 @@ public class JsonSerde implements Serde<JsonNode> {
 
     @Override
     public Serializer<JsonNode> serializer() {
-        return new JsonSerializer<>();
+        return new JsonSerializer();
     }
 
     @Override
     public Deserializer<JsonNode> deserializer() {
-        return new JsonDeserializer<>();
+        return new JsonDeserializer();
     }
 }

@@ -1,6 +1,7 @@
 package com.github.robertzych.classifier;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.util.TimeZone;
@@ -9,7 +10,7 @@ import org.apache.kafka.common.serialization.Serializer;
 
 import java.util.Map;
 
-public class JsonSerializer<T> implements Serializer<T> {
+public class JsonSerializer implements Serializer<JsonNode> {
 
     private static final ObjectMapper OBJECT_MAPPER =
             new ObjectMapper()
@@ -27,7 +28,7 @@ public class JsonSerializer<T> implements Serializer<T> {
     }
 
     @Override
-    public byte[] serialize(String topic, T data) {
+    public byte[] serialize(String topic, JsonNode data) {
 
         if (data == null)
             return null;
