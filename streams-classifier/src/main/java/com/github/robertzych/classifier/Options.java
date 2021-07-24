@@ -14,4 +14,6 @@ public class Options {
     private String clientId = "s-" + UUID.randomUUID();
 
     private String autoOffsetReset = "earliest";
+
+    private String tweetsTopic = "twitter_json_01";
 }

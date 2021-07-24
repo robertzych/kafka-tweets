@@ -1,18 +1,23 @@
 package com.github.robertzych.classifier;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.Serdes;
+import org.apache.kafka.streams.KafkaStreams;
+import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.StreamsConfig;
+import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.errors.LogAndContinueExceptionHandler;
+import org.apache.kafka.streams.kstream.KStream;
 
+import java.security.cert.CertPathBuilder;
 import java.util.Map;
+import java.util.Properties;
 
+@Slf4j
 public class TweetClassifier {
-
-    public void start() {
-
-    }
 
     private Map<String, Object> properties(final Options options) {
         final Map<String, Object> defaults = Map.ofEntries(
@@ -30,5 +35,40 @@ public class TweetClassifier {
                 Map.entry(StreamsConfig.DEFAULT_DESERIALIZATION_EXCEPTION_HANDLER_CLASS_CONFIG, LogAndContinueExceptionHandler.class)
         );
         return defaults;
+    }
+
+    public void start() {
+
+        Options options = new Options();
+        Properties p = toProperties(properties(options));
+
+        log.info("starting streams: " + options.getClientId());
+
+        final Topology topology = streamsBuilder(options).build(p);
+
+        log.info("Topology:\n" + topology.describe());
+
+        final KafkaStreams streams = new KafkaStreams(topology, p);
+
+        // TODO: streams.setUncaughtExceptionHandler(?)
+
+        streams.start();
+
+        Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
+    }
+
+    private StreamsBuilder streamsBuilder(final Options options) {
+
+        final StreamsBuilder builder = new StreamsBuilder();
+
+        KStream<String, JsonNode> tweets = builder.stream(options.getTweetsTopic());
+
+        return builder;
+    }
+
+    private static Properties toProperties(final Map<String, Object> map) {
+        final Properties properties = new Properties();
+        properties.putAll(map);
+        return properties;
     }
 }
