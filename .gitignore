@@ -3,7 +3,8 @@
 .idea
 credentials
 gradle
-twitter-producer/build
+/streams-classifier/build
+/twitter-producer/build
 gradlew
 gradlew.bat
 connect_twitter.json

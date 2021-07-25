@@ -38,9 +38,8 @@ public class TweetClassifier {
         return defaults;
     }
 
-    public void start() {
+    public void start(final Options options) {
 
-        Options options = new Options();
         Properties p = toProperties(properties(options));
 
         log.info("starting streams: " + options.getClientId());
@@ -62,7 +61,8 @@ public class TweetClassifier {
 
         final StreamsBuilder builder = new StreamsBuilder();
 
-        KStream<String, JsonNode> tweets = builder.stream(options.getTweetsTopic());
+        KStream<String, JsonNode> tweets = builder.<String, JsonNode>stream(options.getTweetsTopic())
+            .peek((k, v) -> log.info("key={}, value={}", k, v));
 
         KTable<String, JsonNode> users = tweets.mapValues(jn -> jn.at("/User/ScreenName")).toTable();
 

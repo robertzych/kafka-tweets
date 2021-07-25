@@ -28,19 +28,23 @@ apply plugin: 'com.commercehub.gradle.plugin.avro'
 apply plugin: "com.github.johnrengelman.shadow"
 
 dependencies {
-    testCompile group: 'junit', name: 'junit', version: '4.12'
-    compile 'org.slf4j:slf4j-simple:1.7.30'
-    compile 'org.apache.kafka:kafka-clients:2.8.0'
-    compile 'org.apache.kafka:kafka-streams:2.8.0'
-    compile 'com.google.collections:google-collections:1.0'
-    compile 'com.twitter:hbc-core:2.2.0'
-    compile 'org.apache.avro:avro:1.10.2'
-    compile 'com.fasterxml.jackson.core:jackson-core:2.12.3'
-    compile 'com.fasterxml.jackson.core:jackson-databind:2.12.3'
-    compile 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.12.3'
-    compile 'org.projectlombok:lombok:1.18.18'
+
+    implementation 'com.beust:jcommander:1.78'
+    implementation 'org.slf4j:slf4j-simple:1.7.30'
+    implementation 'org.apache.kafka:kafka-clients:2.8.0'
+    implementation 'org.apache.kafka:kafka-streams:2.8.0'
+    implementation 'io.confluent:kafka-streams-avro-serde:6.2.0'
+    implementation 'com.google.collections:google-collections:1.0'
+    implementation 'com.twitter:hbc-core:2.2.0'
+    implementation 'org.apache.avro:avro:1.10.2'
+    implementation 'com.fasterxml.jackson.core:jackson-core:2.12.3'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.12.3'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.12.3'
+
+    compileOnly 'org.projectlombok:lombok:1.18.18'
     annotationProcessor 'org.projectlombok:lombok:1.18.18'
-    implementation 'io.confluent:kafka-streams-avro-serde:6.1.1'
+
+    testCompile group: 'junit', name: 'junit', version: '4.12'
 }
 
 jar {
@@ -59,6 +63,6 @@ shadowJar {
 }
 
 application {
-    mainClassName = 'com.kafkatweets.twitterproducer.TwitterProducer'
+    mainClassName = 'com.github.robertzych.classifier.Main'
 }
 
