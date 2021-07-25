@@ -11,6 +11,7 @@ import org.apache.kafka.streams.StreamsConfig;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.errors.LogAndContinueExceptionHandler;
 import org.apache.kafka.streams.kstream.KStream;
+import org.apache.kafka.streams.kstream.KTable;
 
 import java.security.cert.CertPathBuilder;
 import java.util.Map;
@@ -62,6 +63,10 @@ public class TweetClassifier {
         final StreamsBuilder builder = new StreamsBuilder();
 
         KStream<String, JsonNode> tweets = builder.stream(options.getTweetsTopic());
+
+        KTable<String, JsonNode> users = tweets.mapValues(jn -> jn.at("/User/ScreenName")).toTable();
+
+        users.toStream().to(options.getUsersTopic());
 
         return builder;
     }

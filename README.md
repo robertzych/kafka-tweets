@@ -6,6 +6,7 @@
 `curl -s -X POST -H 'Content-Type: application/json' --data @connect_file_source.json http://localhost:8083/connectors`
 `curl http://localhost:8083/connectors/file_source/status`
 `kafkacat -b 127.0.0.1:9092 -t twitter_json_01 -C -e -q | wc -l`
+`kafkacat -b 127.0.0.1:9092 -t kafka_users -C -e -q | wc -l`
 `curl -X DELETE http://localhost:8083/connectors/file_source`
 `curl http://localhost:8083/connectors`
 `curl -s -X POST -H 'Content-Type: application/json' --data @connect_twitter.json http://localhost:8083/connectors`

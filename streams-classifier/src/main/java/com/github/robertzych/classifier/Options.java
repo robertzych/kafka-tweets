@@ -16,4 +16,6 @@ public class Options {
     private String autoOffsetReset = "earliest";
 
     private String tweetsTopic = "twitter_json_01";
+
+    private String usersTopic = "kafka_users";
 }
