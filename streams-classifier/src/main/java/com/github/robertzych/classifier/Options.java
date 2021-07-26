@@ -14,7 +14,7 @@ public class Options {
     @Parameter(names = "--bootstrap-servers")
     private String bootstrapServers = "localhost:9092";
 
-    private String applicationId = "streams-classifier";
+    private String applicationId = "streams-classifier-" + UUID.randomUUID();  // TODO: remove before deployment
 
     private String clientId = "s-" + UUID.randomUUID();
 

@@ -2,7 +2,6 @@
 
 `docker-compose up -d`
 `kafka-topics --zookeeper 127.0.0.1 --create -topic twitter_json_01 --partitions 1 --replication-factor 1`
-`kafka-topics --zookeeper 127.0.0.1 --create -topic no_franz_kafka_tweets --partitions 1 --replication-factor 1`
 `curl -s -X POST -H 'Content-Type: application/json' --data @connect_file_source.json http://localhost:8083/connectors`
 `curl http://localhost:8083/connectors/file_source/status`
 `kafkacat -b 127.0.0.1:9092 -t twitter_json_01 -C -e -q | wc -l`
@@ -13,7 +12,7 @@
 `curl http://localhost:8083/connectors/twitter_source/status`
 `kafkacat -b 127.0.0.1:9092 -t twitter_json_01 -C -e -q | wc -l`
 `kafka-console-consumer --bootstrap-server 127.0.0.1:9092 --topic twitter_json_01 --from-beginning`
-`kafka-console-consumer --bootstrap-server 127.0.0.1:9092 --topic no_franz_kafka_tweets --from-beginning`
+`kafka-console-consumer --bootstrap-server 127.0.0.1:9092 --topic kafka_users --from-beginning`
 `curl -s -X POST -H 'Content-Type: application/json' --data @connect_file_sink.json http://localhost:8083/connectors`
 `curl http://localhost:8083/connectors/file_sink/status`
 `wc -l data/kafka_tweets_01.txt`
@@ -29,3 +28,4 @@
 [//]: # (TODO: wait for Neo4j to spin-up before Connect attempts to send messages to it)
 [//]: # (TODO: consider removing `twitter-producer` and Gradle stuff because this is now being done by Connect)
 [//]: # (TODO: include a narrative in README.md that shows what's happening, where to put credentials, etc... Add diagrams)
+[//]: # (TODO: use Gunnar's new kafka connect cli tool instead of curl)

@@ -2,11 +2,11 @@
   "name": "file_source",
   "config": {
     "connector.class": "FileStreamSource",
-    "key.converter": "org.apache.kafka.connect.json.JsonConverter",
-    "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "key.converter": "org.apache.kafka.connect.storage.StringConverter",
+    "value.converter": "org.apache.kafka.connect.storage.StringConverter",
     "value.converter.schemas.enable": false,
     "key.converter.schemas.enable": false,
     "topic": "twitter_json_01",
-    "file": "/tmp/kafka_tweets/kafka_tweets_01.txt"
+    "file": "/tmp/kafka_tweets/nbuesing_tweets.txt"
   }
 }

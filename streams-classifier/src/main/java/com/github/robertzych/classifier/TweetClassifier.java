@@ -5,15 +5,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.Serdes;
+import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.StreamsConfig;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.errors.LogAndContinueExceptionHandler;
-import org.apache.kafka.streams.kstream.KStream;
-import org.apache.kafka.streams.kstream.KTable;
+import org.apache.kafka.streams.kstream.Consumed;
+import org.apache.kafka.streams.kstream.Materialized;
+import org.apache.kafka.streams.state.KeyValueStore;
 
-import java.security.cert.CertPathBuilder;
 import java.util.Map;
 import java.util.Properties;
 
@@ -26,7 +27,7 @@ public class TweetClassifier {
                 Map.entry(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, options.getBootstrapServers()),
                 Map.entry(StreamsConfig.SECURITY_PROTOCOL_CONFIG, "PLAINTEXT"),
                 Map.entry(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.StringSerde.class.getName()),
-                Map.entry(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, JsonSerde.class.getName()),
+                Map.entry(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.StringSerde.class.getName()),
                 Map.entry(StreamsConfig.APPLICATION_ID_CONFIG, options.getApplicationId()),
                 Map.entry(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, options.getAutoOffsetReset()),
                 Map.entry(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "true"),
@@ -59,14 +60,22 @@ public class TweetClassifier {
 
     private StreamsBuilder streamsBuilder(final Options options) {
 
+        JsonSerde jsonSerde = new JsonSerde();
+
         final StreamsBuilder builder = new StreamsBuilder();
 
-        KStream<String, JsonNode> tweets = builder.<String, JsonNode>stream(options.getTweetsTopic())
-            .peek((k, v) -> log.info("key={}, value={}", k, v));
-
-        KTable<String, JsonNode> users = tweets.mapValues(jn -> jn.at("/User/ScreenName")).toTable();
-
-        users.toStream().to(options.getUsersTopic());
+        Materialized<String, Long, KeyValueStore<Bytes, byte[]>> materialized = Materialized.with(Serdes.String(), Serdes.Long());
+        materialized.withCachingDisabled();
+        builder
+                .<String, JsonNode>stream(options.getTweetsTopic(), Consumed.with(Serdes.String(), jsonSerde))
+                .peek((k, v) -> log.info("key={}, value={}", k, v))
+                .selectKey((k, v) -> v.at("/User/ScreenName").asText())
+                .groupByKey()
+                .aggregate(() -> 0L, (k, v, a) -> a + 1, materialized)
+                .toStream()
+                .filter((k, v) -> v == 1L)
+                .peek((k, v) -> log.info("ScreenName={}", k))
+                .to(options.getUsersTopic());
 
         return builder;
     }
