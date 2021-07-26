@@ -29,6 +29,7 @@ apply plugin: "com.github.johnrengelman.shadow"
 
 dependencies {
 
+    implementation 'ai.h2o:h2o-genmodel:3.32.0.3'
     implementation 'com.beust:jcommander:1.78'
     implementation 'org.slf4j:slf4j-simple:1.7.30'
     implementation 'org.apache.kafka:kafka-clients:2.8.0'
