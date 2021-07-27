@@ -81,8 +81,9 @@ public class TweetClassifier {
         MojoReaderBackend reader = MojoReaderBackendFactory.createReaderBackend(mojoSource, MojoReaderBackendFactory.CachingStrategy.MEMORY);
         MojoModel model = ModelMojoReader.readFrom(reader);
         EasyPredictModelWrapper w2vModelWrapper = new EasyPredictModelWrapper(model);
+        float[] vectors = new float[100];
         try {
-            float[] vectors = w2vModelWrapper.predictWord2Vec(words);
+            vectors = w2vModelWrapper.predictWord2Vec(words);
         } catch (PredictException e) {
             e.printStackTrace();
         }
@@ -95,6 +96,18 @@ public class TweetClassifier {
         model = ModelMojoReader.readFrom(reader);
         EasyPredictModelWrapper modelWrapper = new EasyPredictModelWrapper(model);
 
+        RowData row = new RowData();
+        for (int i = 0; i < 100; i++) {
+            row.put(String.format("C%s", (i + 1)), String.valueOf(vectors[i]));
+        }
+        MultinomialModelPrediction prediction = null;
+        try {
+            prediction = (MultinomialModelPrediction) modelWrapper.predict(row);
+            String community = prediction.label;
+        } catch (PredictException e) {
+            e.printStackTrace();
+        }
+
         Materialized<String, Long, KeyValueStore<Bytes, byte[]>> materialized = Materialized.with(Serdes.String(), Serdes.Long());
         materialized.withCachingDisabled();
         builder
@@ -105,17 +118,17 @@ public class TweetClassifier {
                 .map((k, v) -> {
                     String newKey = v.at("/User/ScreenName").asText();
                     String tweetText = v.get("Text").asText();
-                    RowData row = new RowData();
+//                    RowData row = new RowData();
 //                    row.put("C1", vectors[0]);
-                    String community = "unknown";
-                    try {
-                        MultinomialModelPrediction prediction = (MultinomialModelPrediction) modelWrapper.predict(row);
+//                    String community = "unknown";
+//                    try {
+//                        MultinomialModelPrediction prediction = (MultinomialModelPrediction) modelWrapper.predict(row);
 //                        irisRecord.setPredictedSpecies(prediction.label);
-                        community = prediction.label;
-                    } catch (PredictException e) {
-                        log.error(e.getMessage());
-                    }
-                    ((ObjectNode) v).put("community", community);
+//                        community = prediction.label;
+//                    } catch (PredictException e) {
+//                        log.error(e.getMessage());
+//                    }
+//                    ((ObjectNode) v).put("community", community);
                     return new KeyValue<>(newKey, v);
                 })
 //                .selectKey((k, v) -> v.at("/User/ScreenName").asText())
