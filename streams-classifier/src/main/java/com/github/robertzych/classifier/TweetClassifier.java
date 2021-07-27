@@ -19,6 +19,7 @@ import org.apache.kafka.streams.*;
 import org.apache.kafka.streams.errors.LogAndContinueExceptionHandler;
 import org.apache.kafka.streams.kstream.Consumed;
 import org.apache.kafka.streams.kstream.Materialized;
+import org.apache.kafka.streams.kstream.Produced;
 import org.apache.kafka.streams.state.KeyValueStore;
 
 import java.io.IOException;
@@ -37,7 +38,7 @@ public class TweetClassifier {
                 Map.entry(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, options.getBootstrapServers()),
                 Map.entry(StreamsConfig.SECURITY_PROTOCOL_CONFIG, "PLAINTEXT"),
                 Map.entry(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.StringSerde.class.getName()),
-                Map.entry(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.StringSerde.class.getName()),
+                Map.entry(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, JsonSerde.class.getName()),
                 Map.entry(StreamsConfig.APPLICATION_ID_CONFIG, options.getApplicationId()),
                 Map.entry(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, options.getAutoOffsetReset()),
                 Map.entry(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "true"),
@@ -109,7 +110,8 @@ public class TweetClassifier {
                 .toStream()
                 .filter((k, v) -> v == 1L)
                 .peek((k, v) -> log.info("ScreenName={}", k))
-                .to(options.getUsersTopic());
+                .map((k, v) -> new KeyValue<>(k, k))
+                .to(options.getUsersTopic(), Produced.with(Serdes.String(), Serdes.String()));
 
         return builder;
     }
