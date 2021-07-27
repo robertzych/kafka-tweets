@@ -74,64 +74,36 @@ public class TweetClassifier {
 
         final StreamsBuilder builder = new StreamsBuilder();
 
-        String sampleTweet = "I do like it when I can leverage material developed for a prev talk. I will use the Kafka Streams Metric Dashboards built for KS2021Europe to help show the state-store behavior for my \"Kafka Streams Windowing: Behind the Curtain\" talk on TH; interested? https://t.co/V7G5PykZep https://t.co/JkqtTR8y1s";
-        String[] words = tokenize(sampleTweet);
+        EasyPredictModelWrapper w2vModelWrapper = getModelWrapper("w2v_hex.zip");
 
-        URL mojoSource = getClass().getClassLoader().getResource("w2v_hex.zip");
-        MojoReaderBackend reader = MojoReaderBackendFactory.createReaderBackend(mojoSource, MojoReaderBackendFactory.CachingStrategy.MEMORY);
-        MojoModel model = ModelMojoReader.readFrom(reader);
-        EasyPredictModelWrapper w2vModelWrapper = new EasyPredictModelWrapper(model);
-        float[] vectors = new float[100];
-        try {
-            vectors = w2vModelWrapper.predictWord2Vec(words);
-        } catch (PredictException e) {
-            e.printStackTrace();
-        }
-
-        /*URL*/
-        mojoSource = getClass().getClassLoader().getResource("DeepLearning_grid__1_AutoML_20210720_045710_model_2.zip");
-        /*MojoReaderBackend*/
-        reader = MojoReaderBackendFactory.createReaderBackend(mojoSource, MojoReaderBackendFactory.CachingStrategy.MEMORY);
-        /*MojoModel*/
-        model = ModelMojoReader.readFrom(reader);
-        EasyPredictModelWrapper modelWrapper = new EasyPredictModelWrapper(model);
-
-        RowData row = new RowData();
-        for (int i = 0; i < 100; i++) {
-            row.put(String.format("C%s", (i + 1)), String.valueOf(vectors[i]));
-        }
-        MultinomialModelPrediction prediction = null;
-        try {
-            prediction = (MultinomialModelPrediction) modelWrapper.predict(row);
-            String community = prediction.label;
-        } catch (PredictException e) {
-            e.printStackTrace();
-        }
+        EasyPredictModelWrapper modelWrapper = getModelWrapper("DeepLearning_grid__1_AutoML_20210720_045710_model_2.zip");
 
         Materialized<String, Long, KeyValueStore<Bytes, byte[]>> materialized = Materialized.with(Serdes.String(), Serdes.Long());
         materialized.withCachingDisabled();
         builder
                 .<String, JsonNode>stream(options.getTweetsTopic(), Consumed.with(Serdes.String(), jsonSerde))
                 .peek((k, v) -> log.info("key={}, value={}", k, v))
-                // TODO: classify the tweet using the model
-                // TODO: filter the tweets based on the class
                 .map((k, v) -> {
                     String newKey = v.at("/User/ScreenName").asText();
-                    String tweetText = v.get("Text").asText();
-//                    RowData row = new RowData();
-//                    row.put("C1", vectors[0]);
-//                    String community = "unknown";
-//                    try {
-//                        MultinomialModelPrediction prediction = (MultinomialModelPrediction) modelWrapper.predict(row);
-//                        irisRecord.setPredictedSpecies(prediction.label);
-//                        community = prediction.label;
-//                    } catch (PredictException e) {
-//                        log.error(e.getMessage());
-//                    }
-//                    ((ObjectNode) v).put("community", community);
+                    String text = v.get("Text").asText();
+                    String[] words = tokenize(text);
+                    try {
+                        float[] vectors = w2vModelWrapper.predictWord2Vec(words);
+                        RowData row = new RowData();
+                        for (int i = 0; i < 100; i++) {
+                            row.put(String.format("C%s", (i + 1)), String.valueOf(vectors[i]));
+                        }
+                        MultinomialModelPrediction prediction = (MultinomialModelPrediction) modelWrapper.predict(row);
+                        log.info("Community={}", prediction.label);
+                        ObjectNode objectNode = v.deepCopy();
+                        objectNode.put("community", prediction.label);
+                        v = objectNode;
+                    } catch (PredictException e) {
+                        log.error(e.getMessage());
+                    }
                     return new KeyValue<>(newKey, v);
                 })
-//                .selectKey((k, v) -> v.at("/User/ScreenName").asText())
+                .filter((k, v) -> v.get("community").asText().equals("apache kafka"))
                 .groupByKey()
                 .aggregate(() -> 0L, (k, v, a) -> a + 1, materialized)
                 .toStream()
@@ -140,6 +112,13 @@ public class TweetClassifier {
                 .to(options.getUsersTopic());
 
         return builder;
+    }
+
+    private EasyPredictModelWrapper getModelWrapper(String modelPackageFileName) throws IOException {
+        URL mojoSource = getClass().getClassLoader().getResource(modelPackageFileName);
+        MojoReaderBackend reader = MojoReaderBackendFactory.createReaderBackend(mojoSource, MojoReaderBackendFactory.CachingStrategy.MEMORY);
+        MojoModel model = ModelMojoReader.readFrom(reader);
+        return new EasyPredictModelWrapper(model);
     }
 
     private static Properties toProperties(final Map<String, Object> map) {
