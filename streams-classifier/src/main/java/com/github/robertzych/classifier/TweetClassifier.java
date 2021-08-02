@@ -83,35 +83,40 @@ public class TweetClassifier {
         materialized.withCachingDisabled();
         builder
                 .<String, JsonNode>stream(options.getTweetsTopic(), Consumed.with(Serdes.String(), jsonSerde))
-                .peek((k, v) -> log.info("key={}, value={}", k, v))
-                .map((k, v) -> {
-                    String newKey = v.at("/User/ScreenName").asText();
-                    String text = v.get("Text").asText();
-                    String[] words = tokenize(text);
-                    try {
-                        float[] vectors = w2vModelWrapper.predictWord2Vec(words);
-                        RowData row = new RowData();
-                        for (int i = 0; i < 100; i++) {
-                            row.put(String.format("C%s", (i + 1)), String.valueOf(vectors[i]));
-                        }
-                        MultinomialModelPrediction prediction = (MultinomialModelPrediction) modelWrapper.predict(row);
-                        log.info("Community={}", prediction.label);
-                        ObjectNode objectNode = v.deepCopy();
-                        objectNode.put("community", prediction.label);
-                        v = objectNode;
-                    } catch (PredictException e) {
-                        log.error(e.getMessage());
-                    }
-                    return new KeyValue<>(newKey, v);
-                })
-                .filter((k, v) -> v.get("community").asText().equals("apache kafka"))
-                .groupByKey()
-                .aggregate(() -> 0L, (k, v, a) -> a + 1, materialized)
-                .toStream()
-                .filter((k, v) -> v == 1L)
-                .peek((k, v) -> log.info("ScreenName={}", k))
-                .map((k, v) -> new KeyValue<>(k, k))
-                .to(options.getUsersTopic(), Produced.with(Serdes.String(), Serdes.String()));
+                .peek((k, v) -> log.info("value={}", v))
+                .filter((k, v) -> v.get("Lang").asText().equals("en"))
+                .filter((k, v) -> !v.get("Text").asText().toLowerCase().contains("franz"))
+                .filter((k, v) -> !v.get("Retweet").asBoolean())
+//                .map((k, v) -> {
+//                    String newKey = v.at("/User/ScreenName").asText();
+//                    String text = v.get("Text").asText();
+//                    String[] words = tokenize(text);
+//                    ObjectNode objectNode = v.deepCopy();
+//                    objectNode.put("community", "unknown");
+//                    try {
+//                        float[] vectors = w2vModelWrapper.predictWord2Vec(words);
+//                        RowData row = new RowData();
+//                        for (int i = 0; i < 100; i++) {
+//                            row.put(String.format("C%s", (i + 1)), String.valueOf(vectors[i]));
+//                        }
+//                        MultinomialModelPrediction prediction = (MultinomialModelPrediction) modelWrapper.predict(row);
+//                        log.info("Community={}", prediction.label);
+//                        objectNode.put("community", prediction.label);
+//                    } catch (PredictException e) {
+//                        log.error(e.getMessage());
+//                    }
+//                    return new KeyValue<>(newKey, objectNode);
+//                })
+//                .filter((k, v) -> v.get("community").asText().equals("apache kafka"))
+//                .groupByKey()
+//                .aggregate(() -> 0L, (k, v, a) -> a + 1, materialized)
+//                .toStream()
+//                .filter((k, v) -> v == 1L)
+//                .peek((k, v) -> log.info("ScreenName={}", k))
+//                .map((k, v) -> new KeyValue<>(k, k))
+//                .to(options.getUsersTopic(), Produced.with(Serdes.String(), Serdes.String()));
+                .to(options.getUsersTopic());
+
 
         return builder;
     }

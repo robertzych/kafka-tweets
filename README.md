@@ -15,6 +15,8 @@
 `kafka-console-consumer --bootstrap-server 127.0.0.1:9092 --topic kafka_users --from-beginning`
 `curl -s -X POST -H 'Content-Type: application/json' --data @connect_file_sink.json http://localhost:8083/connectors`
 `curl http://localhost:8083/connectors/file_sink/status`
+`curl -s -X POST -H 'Content-Type: application/json' --data @connect_file_sink_filtered.json http://localhost:8083/connectors`
+`curl http://localhost:8083/connectors/file_sink_filtered/status`
 `wc -l data/kafka_tweets_01.txt`
 `tail -f data/kafka_tweets_01.txt | jq '.Text'`
 `curl -s -X POST -H 'Content-Type: application/json' --data @connect_neo4j.json http://localhost:8083/connectors`

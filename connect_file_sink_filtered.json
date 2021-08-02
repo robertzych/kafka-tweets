@@ -1,0 +1,12 @@
+{
+  "name": "file_sink_filtered",
+  "config": {
+    "connector.class": "FileStreamSink",
+    "key.converter": "org.apache.kafka.connect.storage.StringConverter",
+    "value.converter": "org.apache.kafka.connect.storage.StringConverter",
+    "value.converter.schemas.enable": false,
+    "key.converter.schemas.enable": false,
+    "topics": "kafka_users",
+    "file": "/tmp/kafka_tweets/kafka_tweets_03_filtered.txt"
+  }
+}
