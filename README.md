@@ -23,6 +23,7 @@
 `curl http://localhost:8083/connectors/neo4j_sink/status`
 `MATCH (t:Tweet) RETURN count(t)`
 `CALL db.schema.visualization()`
+`head -n 1000 kafka_tweets_03_filtered.txt | sed -E "s|Id\":([0-9]+)|Id\":\"\1\"|g" | jq --raw-output '"\(.Id)^^\(.Community)^^\(.Text)~~"' | tr '\n' ' ' | sed 's/~~/\n/g' > filtered_tweets_with_no_labels.csv`
 
 [//]: # (TODO: create a topic that doesn't include any franz kafka tweets)
 [//]: # (TODO: create a topic that only contains new users)
