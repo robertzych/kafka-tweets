@@ -77,7 +77,7 @@ public class TweetClassifier {
 
         EasyPredictModelWrapper w2vModelWrapper = getModelWrapper("w2v_hex.zip");
 
-        EasyPredictModelWrapper modelWrapper = getModelWrapper("DeepLearning_grid__1_AutoML_20210720_045710_model_2.zip");
+        EasyPredictModelWrapper modelWrapper = getModelWrapper("DeepLearning_grid__1_AutoML_20210804_044416_model_1.zip");
 
         Materialized<String, Long, KeyValueStore<Bytes, byte[]>> materialized = Materialized.with(Serdes.String(), Serdes.Long());
         materialized.withCachingDisabled();
@@ -87,27 +87,27 @@ public class TweetClassifier {
                 .filter((k, v) -> v.get("Lang").asText().equals("en"))
                 .filter((k, v) -> !v.get("Text").asText().toLowerCase().contains("franz"))
                 .filter((k, v) -> !v.get("Retweet").asBoolean())
-//                .map((k, v) -> {
-//                    String newKey = v.at("/User/ScreenName").asText();
-//                    String text = v.get("Text").asText();
-//                    String[] words = tokenize(text);
-//                    ObjectNode objectNode = v.deepCopy();
-//                    objectNode.put("community", "unknown");
-//                    try {
-//                        float[] vectors = w2vModelWrapper.predictWord2Vec(words);
-//                        RowData row = new RowData();
-//                        for (int i = 0; i < 100; i++) {
-//                            row.put(String.format("C%s", (i + 1)), String.valueOf(vectors[i]));
-//                        }
-//                        MultinomialModelPrediction prediction = (MultinomialModelPrediction) modelWrapper.predict(row);
-//                        log.info("Community={}", prediction.label);
-//                        objectNode.put("community", prediction.label);
-//                    } catch (PredictException e) {
-//                        log.error(e.getMessage());
-//                    }
-//                    return new KeyValue<>(newKey, objectNode);
-//                })
-//                .filter((k, v) -> v.get("community").asText().equals("apache kafka"))
+                .map((k, v) -> {
+                    String newKey = v.at("/User/ScreenName").asText();
+                    String text = v.get("Text").asText();
+                    String[] words = tokenize(text);
+                    ObjectNode objectNode = v.deepCopy();
+                    objectNode.put("community", "unknown");
+                    try {
+                        float[] vectors = w2vModelWrapper.predictWord2Vec(words);
+                        RowData row = new RowData();
+                        for (int i = 0; i < 100; i++) {
+                            row.put(String.format("C%s", (i + 1)), String.valueOf(vectors[i]));
+                        }
+                        MultinomialModelPrediction prediction = (MultinomialModelPrediction) modelWrapper.predict(row);
+                        log.info("Community={}", prediction.label);
+                        objectNode.put("community", prediction.label);
+                    } catch (PredictException e) {
+                        log.error(e.getMessage());
+                    }
+                    return new KeyValue<>(newKey, objectNode);
+                })
+                .filter((k, v) -> v.get("community").asText().equals("apache kafka"))
 //                .groupByKey()
 //                .aggregate(() -> 0L, (k, v, a) -> a + 1, materialized)
 //                .toStream()
