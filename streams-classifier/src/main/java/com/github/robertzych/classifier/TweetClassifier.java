@@ -107,7 +107,7 @@ public class TweetClassifier {
                     }
                     return new KeyValue<>(newKey, objectNode);
                 })
-                .filter((k, v) -> v.get("community").asText().equals("apache kafka"))
+//                .filter((k, v) -> v.get("community").asText().equals("apache kafka"))
 //                .groupByKey()
 //                .aggregate(() -> 0L, (k, v, a) -> a + 1, materialized)
 //                .toStream()

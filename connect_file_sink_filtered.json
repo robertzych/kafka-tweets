@@ -7,6 +7,6 @@
     "value.converter.schemas.enable": false,
     "key.converter.schemas.enable": false,
     "topics": "kafka_users",
-    "file": "/tmp/kafka_tweets/kafka_tweets_03_predicted_from_1K.txt"
+    "file": "/tmp/kafka_tweets/kafka_tweets_03_predicted_1500.txt"
   }
 }
