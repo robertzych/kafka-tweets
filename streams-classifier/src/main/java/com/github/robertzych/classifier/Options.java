@@ -24,4 +24,7 @@ public class Options {
     private String tweetsTopic = "twitter_json_01";
 
     private String usersTopic = "kafka_users";
+
+    @Parameter(names = "--config-file")
+    private String configFile = null;
 }

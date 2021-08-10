@@ -25,6 +25,7 @@
 `CALL db.schema.visualization()`
 `head -n 1000 kafka_tweets_03_filtered.txt | sed -E "s|Id\":([0-9]+)|Id\":\"\1\"|g" | jq --raw-output '"\(.Id)^\(.Community)^\(.Text)~~"' | tr '\n' ' ' | sed 's/~~/\n/g' > filtered_tweets_with_no_labels.csv`
 `cat kafka_tweets_03_predicted_1500.txt | sed -E "s|Id\":([0-9]+)|Id\":\"\1\"|g" | jq --raw-output '"\(.Id)^\(.community)^\(.Text)~~"' | tr '\n' ' ' | sed 's/~~/\n/g' > kafka_tweets_03_predicted_1500.csv`
+`k apply -f streams-classifier-stateful.yaml`
 
 [//]: # (TODO: send predictions to another topic for performance monitoring)
 [//]: # (TODO: consider creating a Neo4j custom Docker image that contains both APOC and GDS so it doesn't need to download each time `docker-compose` is run)
