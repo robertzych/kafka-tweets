@@ -25,9 +25,33 @@
 `CALL db.schema.visualization()`
 `head -n 1000 kafka_tweets_03_filtered.txt | sed -E "s|Id\":([0-9]+)|Id\":\"\1\"|g" | jq --raw-output '"\(.Id)^\(.Community)^\(.Text)~~"' | tr '\n' ' ' | sed 's/~~/\n/g' > filtered_tweets_with_no_labels.csv`
 `cat kafka_tweets_03_predicted_1500.txt | sed -E "s|Id\":([0-9]+)|Id\":\"\1\"|g" | jq --raw-output '"\(.Id)^\(.community)^\(.Text)~~"' | tr '\n' ' ' | sed 's/~~/\n/g' > kafka_tweets_03_predicted_1500.csv`
-`kubectl create -f streams-classifier-stateful.yaml`
-`docker build -t gcr.io/fresh-delight-322120/cp-kafka-connect:6.2.0-twitter .`
-`docker push gcr.io/fresh-delight-322120/cp-kafka-connect:6.2.0-twitter`
+
+gke setup
+`docker build -t gcr.io/fresh-delight-322120/cp-server-connect-operator:6.1.0.0-twitter .`
+`docker push gcr.io/fresh-delight-322120/cp-server-connect-operator:6.1.0.0-twitter`
+`gcloud container clusters create kafka-streams-cluster --num-nodes 3 --machine-type e2-standard-2 --zone us-west4-a`
+`gcloud container clusters get-credentials kafka-streams-cluster`
+`kubectl create namespace confluent`
+`kubectl config set-context --current --namespace=confluent`
+`helm repo add confluentinc https://packages.confluent.io/helm`
+`helm upgrade --install operator confluentinc/confluent-for-kubernetes`
+`openssl genrsa -out ca-key.pem 2048`
+`openssl req -new -key ca-key.pem -x509 -days 1000 -out $TUTORIAL_HOME/ca.pem -subj "/C=US/ST=CA/L=MountainView/O=Confluent/OU=Operator/CN=TestCA"`
+`kubectl create secret tls ca-pair-sslcerts --cert=$TUTORIAL_HOME/ca.pem --key=ca-key.pem`
+`kubectl create secret generic cloud-plain --from-file=plain.txt=creds-client-kafka-sasl-user.txt`
+`kubectl create secret generic cloud-sr-access --from-file=basic.txt=creds-schemaRegistry-user.txt`
+`kubectl create secret generic control-center-user --from-file=basic.txt=creds-control-center-users.txt`
+`kubectl apply -f confluent-platform.yaml`
+`kubectl get pods` should return 4 pods (confluent-operator-*, connect-0, controlcenter-0, streams-classifier-0) 
+`kubectl get events` good for debugging and monitoring  
+`kubectl port-forward controlcenter-0 9021:9021` and open https://localhost:9021 (login: admin/Developer1) 
+
+gke teardown
+`kubectl delete -f confluent-platform.yaml`
+`helm uninstall confluent-operator`
+`kubectl delete secrets cloud-plain cloud-sr-access control-center-user`
+`kubectl delete secret ca-pair-sslcerts`
+`gcloud container clusters delete kafka-streams-cluster` 
 
 [//]: # (TODO: send predictions to another topic for performance monitoring)
 [//]: # (TODO: consider creating a Neo4j custom Docker image that contains both APOC and GDS so it doesn't need to download each time `docker-compose` is run)

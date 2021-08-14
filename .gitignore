@@ -11,3 +11,5 @@ connect_twitter.json
 connect_neo4j.json
 /streams-classifier/keyfile.json
 /streams-classifier/src/main/jib/config.txt
+/creds-client-kafka-sasl-user.txt
+/creds-control-center-users.txt
