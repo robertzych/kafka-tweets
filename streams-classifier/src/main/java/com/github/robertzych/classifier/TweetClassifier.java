@@ -70,7 +70,7 @@ public class TweetClassifier {
         builder
                 .<String, JsonNode>stream(options.getTweetsTopic(), Consumed.with(Serdes.String(), jsonSerde))
                 .peek((k, v) -> log.info("value={}", v))
-                .filter((k, v) -> v.get("Lang").asText().equals("en"))
+                .filter((k, v) -> v.get("Lang") != null && v.get("Lang").asText().equals("en"))
                 .filter((k, v) -> !v.get("Text").asText().toLowerCase().contains("franz"))
                 .filter((k, v) -> !v.get("Retweet").asBoolean())
                 .map((k, v) -> {

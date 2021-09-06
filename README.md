@@ -40,6 +40,7 @@ gke setup
 `kubectl create secret tls ca-pair-sslcerts --cert=$TUTORIAL_HOME/ca.pem --key=ca-key.pem`
 `kubectl create secret generic cloud-plain --from-file=plain.txt=creds-client-kafka-sasl-user.txt`
 `kubectl create secret generic cloud-sr-access --from-file=basic.txt=creds-schemaRegistry-user.txt`
+`kubectl create secret generic control-center-user --from-file=basic.txt=creds-control-center-users.txt`
 `kubectl apply -f confluent-platform.yaml`
 `kubectl get pods` should return 4 pods (confluent-operator-*, connect-0, controlcenter-0, streams-classifier-0) 
 `kubectl get events` good for debugging and monitoring  
