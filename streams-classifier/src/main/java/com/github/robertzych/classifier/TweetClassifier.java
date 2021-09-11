@@ -97,9 +97,9 @@ public class TweetClassifier {
                 .groupByKey()
                 .aggregate(() -> 0L, (k, v, a) -> a + 1, materialized)
                 .toStream()
-                .filter((k, v) -> v == 2L)  // TODO: use threshold instead of hard-coded value
-                .peek((k, v) -> log.info("ScreenName={}", k))
-                .map((k, v) -> new KeyValue<>(k, k))
+//                .filter((k, v) -> v == 1L)  // TODO: use threshold instead of hard-coded value
+                .peek((k, v) -> log.info("ScreenName={},count={}", k, v))
+                .map((k, v) -> new KeyValue<>(k, String.format("ScreenName=%s,count=%s", k, v)))
                 .to(options.getUsersTopic(), Produced.with(Serdes.String(), Serdes.String()));
 
         return builder;
