@@ -1,0 +1,11 @@
+ssl.endpoint.identification.algorithm=https
+sasl.mechanism=PLAIN
+request.timeout.ms=20000
+bootstrap.servers=<BOOSTRAP_BROKER_LIST>
+retry.backoff.ms=500
+
+sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required \
+   username="<CLUSTER_API_KEY>" \
+   password="<CLUSTER_API_SECRET>";
+
+security.protocol=SASL_SSL
