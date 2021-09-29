@@ -5,7 +5,7 @@ metadata:
   name: connect
   namespace: confluent
 spec:
-  replicas: 1
+  replicas: 0
   image:
     application: gcr.io/fresh-delight-322120/cp-server-connect-operator:6.1.0.0-twitter
     init: confluentinc/cp-init-container-operator:6.1.0.0
@@ -34,7 +34,7 @@ metadata:
   name: controlcenter
   namespace: confluent
 spec:
-  replicas: 1
+  replicas: 0
   image:
     application: confluentinc/cp-enterprise-control-center-operator:6.1.0.0
     init: confluentinc/cp-init-container-operator:6.1.0.0
@@ -80,7 +80,7 @@ metadata:
   namespace: confluent
 spec:
   serviceName: "streams-classifier"
-  replicas: 1
+  replicas: 0
   podManagementPolicy: "Parallel"
   selector:
     matchLabels:

@@ -14,3 +14,4 @@ connect_neo4j.json
 /creds-client-kafka-sasl-user.txt
 /creds-control-center-users.txt
 config.properties
+kafka-tweets.pem
