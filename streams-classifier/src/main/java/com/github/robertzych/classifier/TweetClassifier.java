@@ -70,7 +70,8 @@ public class TweetClassifier {
         builder
                 .<String, JsonNode>stream(options.getTweetsTopic(), Consumed.with(Serdes.String(), jsonSerde))
                 .peek((k, v) -> log.info("value={}", v))
-                .mapValues(v -> v.get("payload")) // workaround for Control Center UI not allowing to disable schemas
+                // supporting both incorrect format (when Control Center UI didn't allow to disable schemas) and correct formats
+                .mapValues(v -> (v.get("payload") != null) ? v.get("payload") : v)
                 .filter((k, v) -> v.get("Lang") != null && v.get("Lang").asText().equals("en"))
                 .filter((k, v) -> !v.get("Text").asText().toLowerCase().contains("franz"))
                 .filter((k, v) -> !v.get("Retweet").asBoolean())

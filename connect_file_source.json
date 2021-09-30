@@ -7,6 +7,6 @@
     "value.converter.schemas.enable": false,
     "key.converter.schemas.enable": false,
     "topic": "twitter_json_01",
-    "file": "/tmp/kafka_tweets/kafka_tweets_03_filtered_head_1500.txt"
+    "file": "/tmp/kafka_tweets/11_tweets.txt"
   }
 }
