@@ -69,7 +69,6 @@ public class TweetClassifier {
         materialized.withCachingDisabled();
         builder
                 .<String, JsonNode>stream(options.getTweetsTopic(), Consumed.with(Serdes.String(), jsonSerde))
-                .peek((k, v) -> log.info("value={}", v))
                 // supporting both incorrect format (when Control Center UI didn't allow to disable schemas) and correct formats
                 .mapValues(v -> (v.get("payload") != null) ? v.get("payload") : v)
                 .filter((k, v) -> v.get("Lang") != null && v.get("Lang").asText().equals("en"))
@@ -96,6 +95,7 @@ public class TweetClassifier {
                     return new KeyValue<>(newKey, objectNode);
                 })
                 .filter((k, v) -> v.get("community").asText().equals("apache kafka"))
+                .peek((k, v) -> log.info("value={}", v))
                 .groupByKey()
                 .aggregate(() -> 0L, (k, v, a) -> a + 1, materialized)
                 .toStream()

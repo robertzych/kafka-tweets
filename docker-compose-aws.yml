@@ -63,3 +63,9 @@ services:
         /etc/confluent/docker/run &
         #
         sleep infinity
+
+  streams-classifier:
+    image: gcr.io/fresh-delight-322120/kafka-tweets:latest
+    container_name: streams-classifier
+    environment:
+      JAVA_TOOL_OPTIONS: "-DLOGLEVEL=INFO"
