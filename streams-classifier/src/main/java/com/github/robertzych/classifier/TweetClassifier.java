@@ -19,6 +19,7 @@ import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.streams.*;
 import org.apache.kafka.streams.errors.LogAndContinueExceptionHandler;
 import org.apache.kafka.streams.kstream.Consumed;
+import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.Materialized;
 import org.apache.kafka.streams.kstream.Produced;
 import org.apache.kafka.streams.state.KeyValueStore;
@@ -74,8 +75,7 @@ public class TweetClassifier {
         materialized.withCachingDisabled();
 
 
-
-        builder
+        KStream<String, Long> tweetCounts = builder
                 .<String, JsonNode>stream(options.getTweetsTopic(), Consumed.with(Serdes.String(), jsonSerde))
                 // supporting both incorrect format (when Control Center UI didn't allow to disable schemas) and correct formats
                 .mapValues(v -> (v.get("payload") != null) ? v.get("payload") : v)
@@ -106,7 +106,11 @@ public class TweetClassifier {
                 .peek((k, v) -> log.info(String.format("ScreenName=%s,Text=%s", k, v.get("Text").asText())))
                 .groupByKey()
                 .aggregate(() -> 0L, (k, v, a) -> a + 1, materialized)
-                .toStream()
+                .toStream();
+
+        // TODO: how to add TweetCountProcessor?
+
+        tweetCounts
                 .peek((k, v) -> log.info("ScreenName={},count={}", k, v))
                 .map((k, v) -> new KeyValue<>(k, String.format("ScreenName=%s,count=%s", k, v)))
                 .to(options.getUsersTopic(), Produced.with(Serdes.String(), Serdes.String()));
