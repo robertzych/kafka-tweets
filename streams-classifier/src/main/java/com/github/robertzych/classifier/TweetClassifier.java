@@ -22,6 +22,8 @@ import org.apache.kafka.streams.kstream.Consumed;
 import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.Materialized;
 import org.apache.kafka.streams.kstream.Produced;
+import org.apache.kafka.streams.processor.Processor;
+import org.apache.kafka.streams.processor.ProcessorSupplier;
 import org.apache.kafka.streams.state.KeyValueStore;
 import org.apache.kafka.streams.state.Stores;
 
@@ -108,7 +110,7 @@ public class TweetClassifier {
                 .aggregate(() -> 0L, (k, v, a) -> a + 1, materialized)
                 .toStream();
 
-        // TODO: how to add TweetCountProcessor?
+        tweetCounts.process(() -> new TweetCountProcessor(stateStoreName), stateStoreName);
 
         tweetCounts
                 .peek((k, v) -> log.info("ScreenName={},count={}", k, v))

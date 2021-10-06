@@ -25,7 +25,7 @@ public class TweetCountProcessor implements Processor<String, Long> {
     @SuppressWarnings("unchecked")
     public void init(ProcessorContext processorContext) {
         context = processorContext;
-        kvStore = (KeyValueStore) context.getStateStore(storeName);
+        kvStore = context.getStateStore(storeName);
 
         this.context.schedule(Duration.ofMillis(1000), PunctuationType.WALL_CLOCK_TIME, (timestamp) -> {
             KeyValueIterator<String, Long> iter = kvStore.all();
