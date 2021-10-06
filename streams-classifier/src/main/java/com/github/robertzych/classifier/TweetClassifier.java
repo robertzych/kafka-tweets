@@ -22,6 +22,7 @@ import org.apache.kafka.streams.kstream.Consumed;
 import org.apache.kafka.streams.kstream.Materialized;
 import org.apache.kafka.streams.kstream.Produced;
 import org.apache.kafka.streams.state.KeyValueStore;
+import org.apache.kafka.streams.state.Stores;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -65,8 +66,15 @@ public class TweetClassifier {
 
         EasyPredictModelWrapper modelWrapper = getModelWrapper("DeepLearning_grid__1_AutoML_20210804_044416_model_1.zip");
 
-        Materialized<String, Long, KeyValueStore<Bytes, byte[]>> materialized = Materialized.with(Serdes.String(), Serdes.Long());
+//        Materialized<String, Long, KeyValueStore<Bytes, byte[]>> materialized = Materialized.with(Serdes.String(), Serdes.Long());
+        String stateStoreName = "tweetCount";
+        Materialized<String, Long, KeyValueStore<Bytes, byte[]>> materialized = Materialized.<String, Long>as(
+                Stores.inMemoryKeyValueStore(stateStoreName)).withKeySerde(Serdes.String()).withValueSerde(Serdes.Long());
+
         materialized.withCachingDisabled();
+
+
+
         builder
                 .<String, JsonNode>stream(options.getTweetsTopic(), Consumed.with(Serdes.String(), jsonSerde))
                 // supporting both incorrect format (when Control Center UI didn't allow to disable schemas) and correct formats
@@ -99,7 +107,6 @@ public class TweetClassifier {
                 .groupByKey()
                 .aggregate(() -> 0L, (k, v, a) -> a + 1, materialized)
                 .toStream()
-//                .filter((k, v) -> v == 1L)  // TODO: use threshold instead of hard-coded value
                 .peek((k, v) -> log.info("ScreenName={},count={}", k, v))
                 .map((k, v) -> new KeyValue<>(k, String.format("ScreenName=%s,count=%s", k, v)))
                 .to(options.getUsersTopic(), Produced.with(Serdes.String(), Serdes.String()));
@@ -126,7 +133,7 @@ public class TweetClassifier {
                 Map.entry(StreamsConfig.CLIENT_ID_CONFIG, options.getClientId()),
                 Map.entry(StreamsConfig.TOPOLOGY_OPTIMIZATION_CONFIG, StreamsConfig.OPTIMIZE),
                 Map.entry(StreamsConfig.DEFAULT_DESERIALIZATION_EXCEPTION_HANDLER_CLASS_CONFIG, LogAndContinueExceptionHandler.class),
-                Map.entry(StreamsConfig.REPLICATION_FACTOR_CONFIG, 3)
+                Map.entry(StreamsConfig.REPLICATION_FACTOR_CONFIG, 1) // TODO: change back to 3 before deployment
         );
     }
 
