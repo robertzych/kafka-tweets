@@ -139,7 +139,7 @@ public class TweetClassifier {
                 Map.entry(StreamsConfig.CLIENT_ID_CONFIG, options.getClientId()),
                 Map.entry(StreamsConfig.TOPOLOGY_OPTIMIZATION_CONFIG, StreamsConfig.OPTIMIZE),
                 Map.entry(StreamsConfig.DEFAULT_DESERIALIZATION_EXCEPTION_HANDLER_CLASS_CONFIG, LogAndContinueExceptionHandler.class),
-                Map.entry(StreamsConfig.REPLICATION_FACTOR_CONFIG, 1) // TODO: change back to 3 before deployment
+                Map.entry(StreamsConfig.REPLICATION_FACTOR_CONFIG, 3) // TODO: 1 locally but 3 for confluent cloud
         );
     }
 

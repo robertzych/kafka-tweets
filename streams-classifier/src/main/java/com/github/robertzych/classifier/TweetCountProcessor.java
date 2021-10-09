@@ -36,6 +36,7 @@ public class TweetCountProcessor implements Processor<String, Long> {
             KeyValueIterator<String, ValueAndTimestamp<Long>> iterator = kvStore.all();
             while (iterator.hasNext()) {
                 KeyValue<String, ValueAndTimestamp<Long>> entry = iterator.next();
+                log.info("key={},value={},timestamp={}", entry.key, entry.value.value(), entry.value.timestamp());
                 map.put(entry.key, new MyRecord(entry.key,
                                                 entry.value.value(),
                                                 entry.value.timestamp()));
@@ -45,8 +46,10 @@ public class TweetCountProcessor implements Processor<String, Long> {
             List<MyRecord> recordList = new ArrayList<>(map.values());
             Collections.sort(recordList);
             int rank = 1;
-            int topN = 30;
-            for (MyRecord entry: recordList.subList(0, topN)) {
+            int topN = Math.min(recordList.size(), 30);
+            log.info("topN={}", topN);
+            List<MyRecord> topNRecords = recordList.subList(0, topN);
+            for (MyRecord entry: topNRecords) {
                 log.info("rank={},key={},value={}", rank, entry.getName(), entry.getCount());
                 rank++;
             }
@@ -62,6 +65,7 @@ public class TweetCountProcessor implements Processor<String, Long> {
         int intervalMinutes = intervalHours * 60;
         intervalMinutes = 5;
         int intervalSecs = intervalMinutes * 60;
+//        intervalSecs = 10;
         return intervalSecs * 1000;
     }
 
